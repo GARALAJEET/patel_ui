@@ -18,6 +18,7 @@ const DealerDetail = () => {
     const [paymentsLoading, setPaymentsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     // Fetch Dealer Details
     useEffect(() => {
@@ -64,6 +65,11 @@ const DealerDetail = () => {
             setSubmitLoading(true);
             await api.addDealerPayment(id, paymentData);
             setIsModalOpen(false);
+
+            // Show success message
+            setSuccessMessage('Payment added successfully!');
+            setTimeout(() => setSuccessMessage(null), 3000);
+
             // Refresh payments if the tab is open, or open it
             setActiveTab('payments');
             fetchPayments();
@@ -91,6 +97,21 @@ const DealerDetail = () => {
                 &larr; Back to Dealers
             </button>
 
+            {successMessage && (
+                <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm animate-fade-in-down">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-green-700 font-medium">{successMessage}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Dealer Details Card */}
             <div className="bg-white shadow rounded-lg overflow-hidden border border-gray-200">
                 <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
@@ -117,7 +138,7 @@ const DealerDetail = () => {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-500">Financial Overview</label>
-                            <div className="mt-2 grid grid-cols-2 gap-4">
+                            <div className="mt-2 grid grid-cols-3 gap-4">
                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                     <p className="text-xs text-gray-500 uppercase font-semibold">Total Amount</p>
                                     <p className="text-2xl font-bold text-gray-900">₹{dealer.totalAmount?.toLocaleString()}</p>
@@ -125,6 +146,12 @@ const DealerDetail = () => {
                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                     <p className="text-xs text-gray-500 uppercase font-semibold">Paid Amount</p>
                                     <p className="text-2xl font-bold text-green-600">₹{dealer.paidAmount?.toLocaleString()}</p>
+                                </div>
+                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <p className="text-xs text-gray-500 uppercase font-semibold">Balance</p>
+                                    <p className={`text-2xl font-bold ${dealer.paidAmount > dealer.totalAmount ? 'text-green-600' : 'text-red-600'}`}>
+                                        {dealer.paidAmount > dealer.totalAmount ? '+' : dealer.paidAmount < dealer.totalAmount ? '-' : ''}₹{Math.abs(dealer.paidAmount - dealer.totalAmount).toLocaleString()}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -138,8 +165,8 @@ const DealerDetail = () => {
                     <button
                         onClick={() => setActiveTab(activeTab === 'ebills' ? null : 'ebills')}
                         className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'ebills'
-                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                             }`}
                     >
                         Show All E-Bills
@@ -147,8 +174,8 @@ const DealerDetail = () => {
                     <button
                         onClick={handleShowPayments}
                         className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'payments'
-                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                             }`}
                     >
                         Show All Payments

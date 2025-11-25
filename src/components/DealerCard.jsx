@@ -43,17 +43,23 @@ const DealerCard = ({ dealer }) => {
             </div>
 
             <div className="bg-gray-50 px-5 py-3 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                    <div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="text-left">
                         <p className="text-xs text-gray-500 uppercase font-semibold">Total</p>
-                        <p className={`font-bold ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+                        <p className="font-bold text-gray-900">
                             ₹{totalAmount.toLocaleString()}
                         </p>
                     </div>
-                    <div className="text-right">
+                    <div>
                         <p className="text-xs text-gray-500 uppercase font-semibold">Paid</p>
                         <p className="font-bold text-green-600">
                             ₹{paidAmount.toLocaleString()}
+                        </p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-xs text-gray-500 uppercase font-semibold">Balance</p>
+                        <p className={`font-bold ${paidAmount > totalAmount ? 'text-green-600' : 'text-red-600'}`}>
+                            {paidAmount > totalAmount ? '+' : paidAmount < totalAmount ? '-' : ''}₹{Math.abs(paidAmount - totalAmount).toLocaleString()}
                         </p>
                     </div>
                 </div>

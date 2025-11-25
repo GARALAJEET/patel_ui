@@ -63,52 +63,65 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 export const api = {
     // Feature 1: All Dealers List
     getAllDealers: async (page = 0, size = 5, sortBy = 'dealerName', sortDir = 'ASC') => {
-        await delay(500); // Simulate network delay
-        console.log('Fetching dealers (MOCK)...');
-        return MOCK_DEALERS;
+        try {
+            const response = await fetch(`http://localhost:8080/api/dealer/allDealers?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching dealers:', error);
+            throw error;
+        }
     },
 
     // Feature 2: Single Dealer Detail
     getDealerById: async (dealerId) => {
-        await delay(300);
-        console.log(`Fetching dealer ${dealerId} (MOCK)...`);
-        const dealer = MOCK_DEALERS.content.find(d => d.id === parseInt(dealerId));
-        if (!dealer) throw new Error('Dealer not found');
-        return dealer;
+        try {
+            const response = await fetch(`http://localhost:8080/api/dealer/${dealerId}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error(`Error fetching dealer ${dealerId}:`, error);
+            throw error;
+        }
     },
 
     // Feature 3: Payment History
-    getDealerPayments: async (dealerId, page = 0, size = 31, sortBy = 'amountPaid', sortDir = 'desc') => {
-        await delay(400);
-        console.log(`Fetching payments for dealer ${dealerId} (MOCK)...`);
-        return MOCK_PAYMENTS;
+    getDealerPayments: async (dealerId, page = 0, size = 3, sortBy = 'amountPaid', sortDir = 'desc') => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/dealer/${dealerId}/payments?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching dealer payments:', error);
+            throw error;
+        }
     },
 
     // Feature 4: Add New Payment
     addDealerPayment: async (dealerId, paymentData) => {
-        await delay(600);
-        console.log(`Adding payment for dealer ${dealerId} (MOCK):`, paymentData);
+        try {
+            const response = await fetch(`http://localhost:8080/api/dealer/${dealerId}/payments/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(paymentData),
+            });
 
-        // In a real app, we would update the backend. 
-        // Here we just return success.
-        // For better UX in mock mode, we could update the mock data in memory, 
-        // but the prompt just asked to "Refresh the Payment History List".
+            if (!response.ok) {
+                throw new Error('Failed to add payment');
+            }
 
-        // Let's update the mock payments in memory so the user sees it
-        const newPayment = {
-            id: Math.floor(Math.random() * 1000),
-            amountPaid: paymentData.amountPaid,
-            paymentDate: paymentData.paymentDate,
-            paymentMethod: paymentData.paymentMethod
-        };
-        MOCK_PAYMENTS.content.unshift(newPayment);
-
-        // Also update dealer totals for the "Real-time Update" requirement
-        const dealer = MOCK_DEALERS.content.find(d => d.id === parseInt(dealerId));
-        if (dealer) {
-            dealer.paidAmount += paymentData.amountPaid;
+            return await response.json();
+        } catch (error) {
+            console.error(`Error adding payment for dealer ${dealerId}:`, error);
+            throw error;
         }
-
-        return newPayment;
     }
 };
