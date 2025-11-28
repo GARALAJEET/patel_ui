@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import PaymentHistoryTable from '../components/PaymentHistoryTable';
 import AddPaymentModal from '../components/AddPaymentModal';
+import BillListTable from '../components/BillListTable';
+import BillDetailModal from '../components/BillDetailModal';
 
 const DealerDetail = () => {
     const { id } = useParams();
@@ -20,6 +22,12 @@ const DealerDetail = () => {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
 
+    // Bill states
+    const [bills, setBills] = useState([]);
+    const [billsLoading, setBillsLoading] = useState(false);
+    const [selectedBill, setSelectedBill] = useState(null);
+    const [isBillModalOpen, setIsBillModalOpen] = useState(false);
+
     // Fetch Dealer Details
     useEffect(() => {
         const fetchDealer = async () => {
@@ -36,6 +44,19 @@ const DealerDetail = () => {
         };
         fetchDealer();
     }, [id]);
+
+    // Fetch Bills
+    const fetchBills = async () => {
+        try {
+            setBillsLoading(true);
+            const data = await api.getDealerBills(id);
+            setBills(data.content || []);
+        } catch (err) {
+            console.error('Failed to load bills', err);
+        } finally {
+            setBillsLoading(false);
+        }
+    };
 
     // Fetch Payments
     const fetchPayments = async () => {
@@ -163,7 +184,14 @@ const DealerDetail = () => {
             <div className="space-y-4">
                 <div className="flex flex-wrap gap-4">
                     <button
-                        onClick={() => setActiveTab(activeTab === 'ebills' ? null : 'ebills')}
+                        onClick={() => {
+                            if (activeTab === 'ebills') {
+                                setActiveTab(null);
+                            } else {
+                                setActiveTab('ebills');
+                                fetchBills();
+                            }
+                        }}
                         className={`px-4 py-2 rounded-md font-medium transition-colors ${activeTab === 'ebills'
                             ? 'bg-blue-100 text-blue-700 border border-blue-200'
                             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -191,8 +219,19 @@ const DealerDetail = () => {
                 {/* Dynamic Content Area */}
                 <div className="transition-all duration-300 ease-in-out">
                     {activeTab === 'ebills' && (
-                        <div className="bg-white p-8 rounded-lg shadow border border-gray-200 text-center">
-                            <p className="text-gray-500 italic">Feature coming soon...</p>
+                        <div className="space-y-4">
+                            <h2 className="text-lg font-bold text-gray-900">E-Bills History</h2>
+                            {billsLoading ? (
+                                <div className="text-center py-8">Loading bills...</div>
+                            ) : (
+                                <BillListTable
+                                    bills={bills}
+                                    onViewBill={(bill) => {
+                                        setSelectedBill(bill);
+                                        setIsBillModalOpen(true);
+                                    }}
+                                />
+                            )}
                         </div>
                     )}
 
@@ -214,6 +253,12 @@ const DealerDetail = () => {
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleAddPayment}
                 loading={submitLoading}
+            />
+
+            <BillDetailModal
+                isOpen={isBillModalOpen}
+                onClose={() => setIsBillModalOpen(false)}
+                bill={selectedBill}
             />
         </div>
     );

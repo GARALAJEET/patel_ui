@@ -123,5 +123,19 @@ export const api = {
             console.error(`Error adding payment for dealer ${dealerId}:`, error);
             throw error;
         }
+    },
+
+    // Feature 5: Get Dealer Bills
+    getDealerBills: async (dealerId, page = 0, size = 20) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/ebill/all?dealerId=${dealerId}&page=${page}&size=${size}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching dealer bills:', error);
+            throw error;
+        }
     }
 };
