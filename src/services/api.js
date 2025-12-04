@@ -137,5 +137,39 @@ export const api = {
             console.error('Error fetching dealer bills:', error);
             throw error;
         }
+    },
+
+    // Feature 6: Modal Management
+    modalService: {
+        getAllModals: async (page = 0, size = 15, sortDir = 'DESC') => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/modal/all_modals?page=${page}&size=${size}&sortDir=${sortDir}`);
+                if (!response.ok) throw new Error('Failed to fetch modals');
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching all modals:', error);
+                throw error;
+            }
+        },
+        getModalById: async (id, page = 0, size = 15, sortDir = 'DESC') => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/modal/all/${id}?page=${page}&size=${size}&sortDir=${sortDir}`);
+                if (!response.ok) throw new Error('Failed to fetch modal details');
+                return await response.json();
+            } catch (error) {
+                console.error(`Error fetching modal ${id}:`, error);
+                throw error;
+            }
+        },
+        searchModals: async (str, page = 0, size = 15, sortDir = 'DESC') => {
+            try {
+                const response = await fetch(`http://localhost:8080/api/modal/searchProduct?str=${str}&page=${page}&size=${size}&sortDir=${sortDir}`);
+                if (!response.ok) throw new Error('Failed to search modals');
+                return await response.json();
+            } catch (error) {
+                console.error('Error searching modals:', error);
+                throw error;
+            }
+        }
     }
 };
